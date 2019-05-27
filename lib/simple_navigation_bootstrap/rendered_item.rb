@@ -20,6 +20,9 @@ module SimpleNavigationBootstrap
       @split        = options.fetch(:split) { false }
       @skip_caret   = options.fetch(:skip_caret) { false }
       @link_options = @item.link_html_options || {}
+      @link_options.reverse_merge!(class: 'nav-link') if bootstrap_version == 4
+      @wrapper_options = @options
+      @wrapper_options.reverse_merge!(class: 'nav-item') if bootstrap_version == 4
     end
 
 
@@ -39,24 +42,24 @@ module SimpleNavigationBootstrap
     private
 
 
-      attr_reader :item, :level, :bootstrap_version, :options, :navbar_text, :divider, :header, :split, :skip_caret, :link_options
+      attr_reader :item, :level, :bootstrap_version, :options, :navbar_text, :divider, :header, :split, :skip_caret, :link_options, :wrapper_options
 
       def li_text
-        content_tag(:li, content_tag(:p, item.name, class: 'navbar-text'), options)
+        content_tag(:li, content_tag(:p, item.name, class: 'navbar-text'), wrapper_options)
       end
 
 
       def li_divider
         css_class = level == 1 ? 'divider-vertical' : 'divider'
         options[:class] = [options[:class], css_class].flatten.compact.join(' ')
-        content_tag(:li, '', options)
+        content_tag(:li, '', wrapper_options)
       end
 
 
       def li_header
         css_class = bootstrap_version == 3 ? 'dropdown-header' : 'nav-header'
         options[:class] = [options[:class], css_class].flatten.compact.join(' ')
-        content_tag(:li, item.name, options)
+        content_tag(:li, item.name, wrapper_options)
       end
 
 
@@ -72,16 +75,16 @@ module SimpleNavigationBootstrap
               dropdown_part(content)
             end
           else
-            content_tag(:li, dropdown_submenu_link, options)
+            content_tag(:li, dropdown_submenu_link, wrapper_options)
           end
         else
-          content_tag(:li, simple_link, options)
+          content_tag(:li, simple_link, wrapper_options)
         end
       end
 
 
       def splitted_simple_part
-        main_li_options = options.dup
+        main_li_options = wrapper_options.dup
         main_li_options[:class] = [main_li_options[:class], 'dropdown-split-left'].flatten.compact.join(' ')
         content_tag(:li, simple_link, main_li_options)
       end
@@ -103,7 +106,7 @@ module SimpleNavigationBootstrap
         link_options[:"data-target"] = '#'
 
         content = link_to(name, '#', link_options) + render_sub_navigation_for(item)
-        content_tag(:li, content, options)
+        content_tag(:li, content, wrapper_options)
       end
 
 
